@@ -1,42 +1,43 @@
-# EchoLog: Product Requirements Document (PRD)
+# EchoLog: Product Requirements Document (PRD) v2
+**Based on:** Market Feasibility Study (Feb 2026)
 
 ## 1. Product Vision
-A **zero-latency, privacy-first voice journal** that turns unstructured rambling into structured, actionable insights using local AI.
+**EchoLog** is a "Zero-Knowledge" AI Voice Journal. It empowers privacy-conscious professionals to capture thoughts, track mental health, and structure their lives without sending a single byte of private data to the cloud.
 
-## 2. Core Features (MVP)
+## 2. Core Value Proposition (USP)
+1.  **Local-First AI**: All transcription (Whisper) and analysis (LLM) happen on-device.
+2.  **Voice-to-Insight**: Not just "Speech-to-Text", but "Speech-to-Structure" (Action items, Emotion tags, Summaries).
+3.  **Markdown Native**: Users own their data (plain text files), compatible with Obsidian/Logseq.
 
-### 2.1 The "Capture" Experience
-*   **Global Hotkey**: `Cmd+Shift+R` to start/stop recording immediately from anywhere.
-*   **Menu Bar Widget**: Visual indicator of recording status.
-*   **Tech**: CoreAudio + `ffmpeg` for compression.
+## 3. Core Features (MVP)
 
-### 2.2 Local Intelligence Engine
+### 3.1 The "Capture" Experience
+*   **Global Hotkey**: `Cmd+Shift+R` (Instant record).
+*   **Status Bar**: Minimal UI (Recording dot).
+*   **Background Processing**: Recording continues even if window is closed.
+
+### 3.2 The Local Intelligence Engine
 *   **Transcription**: 
-    *   Engine: `openai-whisper` (Python) or `whisper.cpp` (C++).
-    *   Model: `base.en` or `small` for speed; `turbo` for quality.
-*   **Processing**:
-    *   Engine: `opencode` (via `codex` CLI or local API).
-    *   Prompt Strategy: "Summarize this day, extract TODOs, and tag the emotional vibe."
+    *   **Engine**: `openai-whisper` (Python) or `whisper.cpp`.
+    *   **Optimization**: Use Apple CoreML / Metal acceleration where possible.
+*   **Analysis**:
+    *   **Engine**: `codex` (Local Mode) or `Ollama`.
+    *   **Task**: Extract "Mood", "Topics", "Action Items".
 
-### 2.3 Storage & Sync
-*   **Format**: Plain Text / Markdown.
-*   **Location**: `~/Documents/EchoLog` (User configurable).
-*   **Sync**: Relies on system iCloud Drive / Dropbox (Hands-off approach).
-
-## 3. User Flow
-1. User presses Hotkey -> 🔴 Recording starts.
-2. User speaks thoughts ("Had a tough meeting with Sarah, need to follow up on the Q3 report...").
-3. User presses Hotkey -> ⏹️ Recording stops.
-4. App runs background job:
-    *   `whisper input.wav` -> `text`.
-    *   `codex "Extract TODOs from: {text}"` -> `output`.
-5. Notification pops up: "Journal saved + 1 TODO added."
+### 3.3 The "Dashboard" (Mental Health)
+*   **Weekly Review**: A generated summary of the week's emotional trends.
+*   **Privacy Dial**: A visual indicator showing "Offline Mode Active".
 
 ## 4. Technical Architecture
-*   **Frontend**: Electron (React) or Tauri (Rust) for lightweight UI.
-*   **Backend**: Node.js (calling shell commands for Whisper/Codex).
-*   **Database**: SQLite (for fast search) + File System (for portability).
+*   **App Shell**: **Tauri** (Rust) for security and small binary size (vs Electron).
+*   **Database**: SQLite for metadata; File System for content (`.md` files).
+*   **Bridging**: Tauri Sidecar -> Python/C++ binaries for AI.
 
-## 5. Success Metrics
-*   **Retention**: % of users who record >3 entries in first week.
-*   **Privacy Trust**: Zero network requests to non-local servers (except initial model download).
+## 5. Roadmap
+*   **Phase 1 (MVP)**: Record -> Local Transcribe -> Markdown File.
+*   **Phase 2**: Local LLM Integration (Summarization).
+*   **Phase 3**: iOS Companion App (Sync via iCloud).
+
+## 6. Success Metrics
+*   **Trust**: 0 Data Leaks.
+*   **Performance**: Transcription < 0.5x realtime (e.g., 1 min audio transcribed in <30s).
